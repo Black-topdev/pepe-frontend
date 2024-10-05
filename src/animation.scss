@@ -1,0 +1,132 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+$gameFont: "Press Start 2P", cursive;
+
+$sassy: #bf4080;
+$coral: #fe5f55;
+$royal: #6f2ed8;
+$tiffany: #00b4d8;
+$peach: #e6f14a;
+$offWhite: #fffff7;
+
+$colors: $sassy, $coral, $royal, $tiffany, $peach;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 70vw;
+  gap: 0.5rem;
+  justify-content: center;
+  align-content: center;
+  margin: auto;
+  text-align: center;
+}
+
+:root {
+  background: black;
+}
+
+.neon-text {
+  position: relative;
+  font-family: $gameFont;
+  position: relative;
+  width: 100%;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1px $sassy;
+  color: $offWhite;
+
+  z-index: 10;
+
+  &::before {
+    content: attr(data-text);
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+
+    font-family: inherit;
+    color: $sassy;
+    width: 100%;
+    height: 100%;
+    animation: animateTextColor 3s infinite linear;
+
+    z-index: -1;
+    // border: 2px solid green;
+  }
+}
+
+.rotating-text {
+  position: relative;
+  -webkit-text-stroke: 1px $sassy;
+
+  &::before {
+    animation: rotatingWord 2.8s linear infinite;
+  }
+
+  &::after {
+    content: attr(data-text);
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 8px;
+    animation: animateTextColor 3s infinite linear,
+      rotatingWord 5s linear infinite;
+    z-index: -1;
+  }
+}
+.menuBtn {
+  user-select: none !important;
+  color: black;
+  transition: transform 0.2s ease;
+}
+
+.menuBtn:hover {
+  cursor: pointer;
+  color: white;
+}
+.menuBtn:active {
+  transform: translate(-5px, -5px);
+}
+
+@mixin randomColor($colors) {
+  $color: nth($colors, random(length($colors)));
+  color: $color;
+}
+
+@keyframes animateTextColor {
+  0% {
+    @include randomColor($tiffany);
+  }
+  20% {
+    @include randomColor($colors);
+  }
+  50% {
+    @include randomColor($colors);
+  }
+  60% {
+    @include randomColor($colors);
+  }
+  80% {
+    @include randomColor($colors);
+  }
+  100% {
+    @include randomColor($tiffany);
+  }
+}
+
+@keyframes rotatingWord {
+  0% {
+    transform: translate(0px, 0px);
+  }
+  20% {
+    transform: translate(5px, 0px);
+  }
+  40% {
+    transform: translate(5px, 5px);
+  }
+  60% {
+    transform: translate(0px, 5px);
+  }
+  100% {
+    transform: translate(0px, 0px);
+  }
+}
