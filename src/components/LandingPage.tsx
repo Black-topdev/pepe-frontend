@@ -1,16 +1,124 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import svg from "../assets/svg";
 import Img from "../assets/pepeImages";
 import tabList from "../assets/buttonList.png";
 import { Link } from "react-router-dom";
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-
-
 import "../animation.scss";
 
-function LandingPage() {
+// hooks to solana
+import {
+  Connection,
+  PublicKey,
+  clusterApiUrl,
+  Transaction,
+  SystemProgram,
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
 
+declare global {
+  interface Window {
+    solana?: any; // Add Phantom wallet to the window interface
+  }
+}
+// end of solana
+const LandingPage: React.FC = () => {
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  //blockchain
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
+
+  // solana  start
+
+  // Helper function to shorten the address
+  const shortenAddress = (address: string): string => {
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+  };
+
+  // Check if Phantom is installed
+  const isPhantomInstalled = (): boolean => {
+    return window?.solana?.isPhantom || false;
+  };
+
+  // Function to connect the Phantom wallet
+  const connectWallet = async (): Promise<void> => {
+    try {
+      const { solana } = window;
+      if (solana && solana.isPhantom) {
+        const response = await solana.connect();
+        setWalletAddress(response.publicKey.toString());
+        setIsConnected(true);
+      } else {
+        // If Phantom is not installed, prompt the user to download it
+        alert(
+          "Phantom Wallet is not installed. Redirecting you to download Phantom Wallet."
+        );
+        window.open("https://phantom.app/", "_blank");
+      }
+    } catch (error) {
+      console.error("Error connecting to wallet:", error);
+    }
+  };
+
+  // Function to disconnect the Phantom wallet
+  const disconnectWallet = async (): Promise<void> => {
+    try {
+      const { solana } = window;
+      if (solana && solana.isPhantom) {
+        await solana.disconnect();
+        setWalletAddress(null);
+        setIsConnected(false);
+      }
+    } catch (error) {
+      console.error("Error disconnecting from wallet:", error);
+    }
+  };
+
+  // Function to send SOL tokens
+  const sendSOL = async (
+    recipientAddress: string,
+    amount: number
+  ): Promise<void> => {
+    if (!isConnected || !walletAddress) {
+      alert("Please connect your wallet first.");
+      return;
+    }
+
+    try {
+      const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+      const fromPubKey = new PublicKey(walletAddress);
+      const toPubKey = new PublicKey(recipientAddress);
+
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: fromPubKey,
+          toPubkey: toPubKey,
+          lamports: amount * LAMPORTS_PER_SOL, // Convert to lamports
+        })
+      );
+
+      // Sign and send transaction
+      const { solana } = window;
+      const { signature } = await solana.signAndSendTransaction(transaction);
+      console.log("Transaction signature:", signature);
+
+      // Confirm transaction
+      const confirmation = await connection.confirmTransaction(signature);
+      console.log("Transaction confirmed:", confirmation);
+    } catch (error) {
+      console.error("Error sending SOL:", error);
+    }
+  };
+
+  // Handle button click (connect/disconnect)
+  const handleClick = (): void => {
+    if (isConnected) {
+      disconnectWallet();
+    } else {
+      connectWallet();
+    }
+  };
+
+  // solana stop
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -19,9 +127,6 @@ function LandingPage() {
 
     return () => clearInterval(intervalId);
   }, []);
-
-  const connectWallet = async () => {
-  };
   return (
     <div className="w-full xl:min-h-screen flex flex-row justify-center bg-gradient-to-b from-[#000E1A] to-[#2D1D46]">
       {/* container */}
@@ -136,13 +241,14 @@ function LandingPage() {
                 <img src={tabList} className="w-full" />
               </div>
               <div className="absolute top-0 left-0 w-full flex flex-col grow pt-[10vw]">
-              <ConnectButton />
-                {/* <p
+                <button
+                  onClick={handleClick}
                   className="font-bold text-[30px] font-sans mb-[10vw] menuBtn"
-                  onClick={connectWallet}
                 >
-                    {!connected || !publicKey ? "Connect Wallet" : "Disconnect"}
-                </p> */}
+                  {isConnected
+                    ? shortenAddress(walletAddress!)
+                    : "Connect Wallet"}
+                </button>
                 <p className="font-bold text-[30px] font-sans mb-[10vw] menuBtn ">
                   <Link to="/game">Start Game</Link>
                 </p>
@@ -168,15 +274,14 @@ function LandingPage() {
               data-aos-anchor-placement="top-center"
             >
               <div className="flex flex-col grow pt-[65px]">
-              <ConnectButton />
-              {
-                  // <p
-                  //   className="font-bold text-[40px] font-sans mb-[60px]  menuBtn"
-                  //   onClick={connectWallet}
-                  // >
-                  //   {!connected || !publicKey ? "Connect Wallet" : "Disconnect"}
-                  // </p>
-                }
+                <button
+                  onClick={handleClick}
+                  className="font-bold text-[40px] font-sans mb-[60px]  menuBtn"
+                >
+                  {isConnected
+                    ? shortenAddress(walletAddress!)
+                    : "Connect Wallet"}
+                </button>
                 <p className="font-bold text-[40px] font-sans mb-[60px]  menuBtn">
                   <Link to="/game">Start Game</Link>
                 </p>
@@ -191,5 +296,5 @@ function LandingPage() {
       <div className="fixed w-full h-24 bottom-0 bg-[url('assets/footer.png')] bg-cover"></div>
     </div>
   );
-}
+};
 export default LandingPage;
