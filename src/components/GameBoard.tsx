@@ -122,6 +122,28 @@ class Time {
     return this.curTime;
   }
 }
+const addDistanceValue = async (highScore: number) => {
+  const wallet_id = localStorage.getItem('wallet_id') || "";
+  const item = {wallet_id: wallet_id, value: highScore, description: '' };
+  try {
+    const response = await fetch('http://localhost:3000/addItem', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(item),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    console.log("*****response*****", response);
+
+  } catch (error) {
+
+  } finally {
+
+  }
+}
 
 function init() {
   const time = new Time();
@@ -214,6 +236,8 @@ function init() {
     infoHandler.update(audioPlayer, cameraPosX);
   };
 
+
+
   const onKeyDown = (event: KeyboardEvent) => {
     keyHandler.onKeyDown(event);
     if (keyHandler.getPressingKeys().has(Key.ENTER)) {
@@ -298,12 +322,15 @@ export default function GameBoard() {
           audioPlayer.playSound(AudioType.CRASH);
           player.enterState(PlayerState.CRASH);
           infoHandler.updateState(State.GAME_OVER);
+          
+          addDistanceValue(Number(infoHandler.getScoreText() || 0));
         }
 
         if (
           hasCollided(player.getColliderBoxes(), birdSpawner.getColliderBoxes())
         ) {
           if (player.getState() !== PlayerState.ATTACK) {
+            addDistanceValue(Number(infoHandler.getScoreText() || 0));
             audioPlayer.playSound(AudioType.CRASH);
             player.enterState(PlayerState.CRASH);
             infoHandler.updateState(State.GAME_OVER);
@@ -347,3 +374,5 @@ export default function GameBoard() {
     </div>
   );
 }
+
+

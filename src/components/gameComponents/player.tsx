@@ -46,6 +46,7 @@ export class PlayerMovement extends Movement {
 
     updateAccY(acc: number): void {
         this.acc.y = acc
+       
     }
     
     update(curTime: number): boolean {
@@ -106,6 +107,7 @@ export class Player extends Obj implements IPlayer {
                 else if (keys.has(Key.SPACE)) {
                     this.updateState(PlayerState.ATTACK)
                 }
+               
                 break
             case PlayerState.RUN:
                 if (keys.has(Key.DOWN)) {

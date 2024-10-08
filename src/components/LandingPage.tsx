@@ -46,6 +46,7 @@ const LandingPage: React.FC = () => {
       if (solana && solana.isPhantom) {
         const response = await solana.connect();
         setWalletAddress(response.publicKey.toString());
+        localStorage.setItem('wallet_id', response.publicKey.toString());
         setIsConnected(true);
       } else {
         // If Phantom is not installed, prompt the user to download it
@@ -72,6 +73,7 @@ const LandingPage: React.FC = () => {
       console.error("Error disconnecting from wallet:", error);
     }
   };
+
 
   // Function to send SOL tokens
   const sendSOL = async (
@@ -117,13 +119,40 @@ const LandingPage: React.FC = () => {
       connectWallet();
     }
   };
-
-  // solana stop
+  const [sumValue, setData] = useState([]);
+  const [sortData, setSortData] = useState([]);
+  
 
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentImgIndex((prevIndex) => (prevIndex + 1) % Img.length);
     }, 1000); // 1000 milliseconds = 1 second
+    
+    const fetchData = async () => {
+      try {
+        const wallet_id = localStorage.getItem('wallet_id') || "";
+        const response = await fetch(`http://localhost:3000/getSumItems/${wallet_id}` );
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        const jsonData = await response.json();
+        setData(jsonData.total);
+
+        const response_sort = await fetch('http://localhost:3000/getSort');
+        if (!response_sort.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        const jsonSortData = await response_sort.json();
+        console.log("-----------jsonSortData---------", jsonSortData.result)
+        setSortData(jsonSortData.result);
+      } catch (err) {
+      } finally {
+      }
+    };
+
+    fetchData();
 
     return () => clearInterval(intervalId);
   }, []);
@@ -151,7 +180,7 @@ const LandingPage: React.FC = () => {
             >
               <div className="rounded-[30px] border-[3px] border-[#02437B] bg-[414141] bg-opacity-[25] w-full p-1">
                 <p className="font-sans text-white text-[25px] xl:text-[40px]">
-                  <span className="text-[#FFDC00]">21365</span>
+                  <span className="text-[#FFDC00]">{sumValue}</span>
                 </p>
               </div>
               <div className="absolute left-[-10px] xl:left-[-20px] top-1/2 transform -translate-y-1/2 h-full flex items-center w-16 xl:w-full">
@@ -186,7 +215,7 @@ const LandingPage: React.FC = () => {
                   <div>{svg.firthMedal}</div>
                   <div className="rounded-full border-2 border-white overflow-hidden w-[40px] h-[40px] bg-[url('./assets/avatar1.jpg')] bg-cover"></div>
                   <div className="grow rounded-md border-transparent bg-[#434553] p-3 flex flex-row justify-between gap-10 font-jua text-white text-[17px] text-left">
-                    <p>Nguyen</p>
+                    <p></p>
                     <p className=" grow text-yellow-400 hidden xl:flex xl:flex-row xl:gap-2 xl:items-center">
                       {svg.fullStar}
                       {svg.fullStar}
@@ -194,7 +223,7 @@ const LandingPage: React.FC = () => {
                       {svg.fullStar}
                       {svg.fullStar}
                     </p>
-                    <p>488 714 827</p>
+                    <p></p>
                   </div>
                 </div>
                 <div className="w-full flex flex-row gap-2 xl:gap-10 p-2 justify-center items-center">
@@ -209,7 +238,7 @@ const LandingPage: React.FC = () => {
                       {svg.fullStar}
                       {svg.fullStar}
                     </p>
-                    <p>488 714 827</p>
+                    <p></p>
                   </div>
                 </div>
                 <div className="w-full flex flex-row gap-2 xl:gap-10 p-2 justify-center items-center">
@@ -224,7 +253,7 @@ const LandingPage: React.FC = () => {
                       {svg.fullStar}
                       {svg.fullStar}
                     </p>
-                    <p>488 714 827</p>
+                    <p></p>
                   </div>
                 </div>
               </div>

@@ -83,7 +83,7 @@ export class InfoHandler implements IInfoHandler {
         }
     }
 
-    update(audioPlayer: IAudioPlayer, offX: number) {
+     update(audioPlayer: IAudioPlayer, offX: number) {
         if (this.state !== State.PLAYING) {
             return
         }
@@ -99,6 +99,9 @@ export class InfoHandler implements IInfoHandler {
         }
         
         this.highScore = Math.max(this.score, this.highScore)
+
+       
+
     }
 
     drawCanvas(drawer: IDrawer) {
@@ -115,6 +118,7 @@ export class InfoHandler implements IInfoHandler {
             y: gameHeight - CHAR_HEIGHT - 10,
         }
         this.drawText(drawer, text, pos)
+
     }
 
     getScoreText(): string {        
