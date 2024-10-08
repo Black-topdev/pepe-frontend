@@ -322,7 +322,7 @@ const LandingPage: React.FC = () => {
                 </p> */}
                 <button
                   onClick={handleStartClick}
-                  className="font-bold text-[30px] font-sans mb-[5vw] menuBtn"
+                  className="font-bold text-[40px] font-sans mb-[5vw] menuBtn"
                 >Start Game</button>
                 <p className="font-bold text-[40px] font-sans menuBtn">Shop</p>
               </div>
