@@ -120,7 +120,7 @@ const LandingPage: React.FC = () => {
     }
   };
   const [sumValue, setData] = useState([]);
-  const [sortData, setSortData] = useState([]);
+  const [sortData, setSortData] = useState<{ id: string; totalValue: number; }[]>([]);
   
 
   useEffect(() => {
@@ -211,51 +211,23 @@ const LandingPage: React.FC = () => {
                 </p>
               </div>
               <div className="border-[3px] rounded-[30px] border-[#BED9E6] bg-transparent sm:px-[10px] py-[40px] xl:p-[40px] w-full">
-                <div className="w-full flex flex-row gap-2 xl:gap-10 p-2 justify-center items-center">
-                  <div>{svg.firthMedal}</div>
-                  <div className="rounded-full border-2 border-white overflow-hidden w-[40px] h-[40px] bg-[url('./assets/avatar1.jpg')] bg-cover"></div>
-                  <div className="grow rounded-md border-transparent bg-[#434553] p-3 flex flex-row justify-between gap-10 font-jua text-white text-[17px] text-left">
-                    <p></p>
-                    <p className=" grow text-yellow-400 hidden xl:flex xl:flex-row xl:gap-2 xl:items-center">
-                      {svg.fullStar}
-                      {svg.fullStar}
-                      {svg.fullStar}
-                      {svg.fullStar}
-                      {svg.fullStar}
-                    </p>
-                    <p></p>
+                {sortData.map(data => (
+                    <div key={(data as any)._id} className="w-full flex flex-row gap-2 xl:gap-10 p-2 justify-center items-center">
+                    <div>{svg.firthMedal}</div>
+                    <div className="rounded-full border-2 border-white overflow-hidden w-[40px] h-[40px] bg-[url('./assets/avatar1.jpg')] bg-cover"></div>
+                    <div className="grow rounded-md border-transparent bg-[#434553] p-3 flex flex-row justify-between gap-10 font-jua text-white text-[17px] text-left">
+                      <p>{(data as any)._id}</p>
+                      <p className=" grow text-yellow-400 hidden xl:flex xl:flex-row xl:gap-2 xl:items-center">
+                        {svg.fullStar}
+                        {svg.fullStar}
+                        {svg.fullStar}
+                        {svg.fullStar}
+                        {svg.fullStar}
+                      </p>
+                      <p>{data.totalValue}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="w-full flex flex-row gap-2 xl:gap-10 p-2 justify-center items-center">
-                  <div>{svg.firthMedal}</div>
-                  <div className="rounded-full border-2 border-white overflow-hidden w-[40px] h-[40px] bg-[url('./assets/avatar1.jpg')] bg-cover"></div>
-                  <div className="grow rounded-md border-transparent bg-[#434553] p-3 flex flex-row justify-between gap-10 font-jua text-white text-[17px] text-left">
-                    <p>Nguyen</p>
-                    <p className=" grow text-yellow-400 hidden xl:flex xl:flex-row xl:gap-2 xl:items-center">
-                      {svg.fullStar}
-                      {svg.fullStar}
-                      {svg.fullStar}
-                      {svg.fullStar}
-                      {svg.fullStar}
-                    </p>
-                    <p></p>
-                  </div>
-                </div>
-                <div className="w-full flex flex-row gap-2 xl:gap-10 p-2 justify-center items-center">
-                  <div>{svg.firthMedal}</div>
-                  <div className="rounded-full border-2 border-white overflow-hidden w-[40px] h-[40px] bg-[url('./assets/avatar1.jpg')] bg-cover"></div>
-                  <div className="grow rounded-md border-transparent bg-[#434553] p-3 flex flex-row justify-between gap-10 font-jua text-white text-[17px] text-left">
-                    <p>Nguyen</p>
-                    <p className=" grow text-yellow-400 hidden xl:flex xl:flex-row xl:gap-2 xl:items-center">
-                      {svg.fullStar}
-                      {svg.fullStar}
-                      {svg.fullStar}
-                      {svg.fullStar}
-                      {svg.fullStar}
-                    </p>
-                    <p></p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
