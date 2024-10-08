@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate  } from 'react-router-dom';
 import svg from "../assets/svg";
 import Img from "../assets/pepeImages";
 import tabList from "../assets/buttonList.png";
@@ -21,6 +22,8 @@ declare global {
   }
 }
 // end of solana
+
+
 const LandingPage: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -68,6 +71,7 @@ const LandingPage: React.FC = () => {
         await solana.disconnect();
         setWalletAddress(null);
         setIsConnected(false);
+        localStorage.setItem('wallet_id', "")
       }
     } catch (error) {
       console.error("Error disconnecting from wallet:", error);
@@ -119,23 +123,48 @@ const LandingPage: React.FC = () => {
       connectWallet();
     }
   };
+  const navigate = useNavigate();
+
+  const handleStartClick = () => {
+    // Show confirmation dialog
+    const wallet_connect_flag = localStorage.getItem('wallet_id') || "";
+    
+    console.log("*************", wallet_connect_flag)
+    
+    if(wallet_connect_flag == ""){
+      const confirmed = window.confirm("your game score won't save without wallet connect?");
+
+      if (confirmed) {
+        
+        // Perform the delete action
+        navigate('/game'); // Navigate
+        console.log('Item deleted');
+      } else {
+        console.log('Deletion cancelled');
+      }
+    }else{
+      navigate('/game'); // Navigate
+    }
+    
+  };
   const [sumValue, setData] = useState([]);
   const [sortData, setSortData] = useState<{ id: string; totalValue: number; }[]>([]);
-  
+
 
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentImgIndex((prevIndex) => (prevIndex + 1) % Img.length);
     }, 1000); // 1000 milliseconds = 1 second
-    
+
     const fetchData = async () => {
       try {
-        const wallet_id = localStorage.getItem('wallet_id') || "";
-        const response = await fetch(`http://localhost:3000/getSumItems/${wallet_id}` );
+        const wallet_id = localStorage.getItem('wallet_id') || 0;
+        
+        const response = await fetch(`http://localhost:3000/getSumItems/${wallet_id}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        
+
         const jsonData = await response.json();
         setData(jsonData.total);
 
@@ -143,7 +172,7 @@ const LandingPage: React.FC = () => {
         if (!response_sort.ok) {
           throw new Error('Network response was not ok');
         }
-        
+
         const jsonSortData = await response_sort.json();
         console.log("-----------jsonSortData---------", jsonSortData.result)
         setSortData(jsonSortData.result);
@@ -205,6 +234,7 @@ const LandingPage: React.FC = () => {
               data-aos-offset="300"
               data-aos-easing="ease-in-sine"
             >
+
               <div className="absolute left-1/2 transform -translate-y-1/2 -translate-x-1/2 rounded-[13px] border-[3px] bg-[#0B1225] p-[3px]">
                 <p className="font-sans text-[24px] xl:text-[32px] text-white p-1 xl:p-2">
                   Leader-Board
@@ -212,11 +242,11 @@ const LandingPage: React.FC = () => {
               </div>
               <div className="border-[3px] rounded-[30px] border-[#BED9E6] bg-transparent sm:px-[10px] py-[40px] xl:p-[40px] w-full">
                 {sortData.map(data => (
-                    <div key={(data as any)._id} className="w-full flex flex-row gap-2 xl:gap-10 p-2 justify-center items-center">
+                  <div key={(data as any)._id} className="w-full flex flex-row gap-2 xl:gap-10 p-2 justify-center items-center">
                     <div>{svg.firthMedal}</div>
                     <div className="rounded-full border-2 border-white overflow-hidden w-[40px] h-[40px] bg-[url('./assets/avatar1.jpg')] bg-cover"></div>
                     <div className="grow rounded-md border-transparent bg-[#434553] p-3 flex flex-row justify-between gap-10 font-jua text-white text-[17px] text-left">
-                      <p>{(data as any)._id}</p>
+                      <p>{(data as any)._id.substring(0, 10)} ...</p>
                       <p className=" grow text-yellow-400 hidden xl:flex xl:flex-row xl:gap-2 xl:items-center">
                         {svg.fullStar}
                         {svg.fullStar}
@@ -250,9 +280,13 @@ const LandingPage: React.FC = () => {
                     ? shortenAddress(walletAddress!)
                     : "Connect Wallet"}
                 </button>
-                <p className="font-bold text-[30px] font-sans mb-[10vw] menuBtn ">
+                {/* <p className="font-bold text-[30px] font-sans mb-[10vw] menuBtn ">
                   <Link to="/game">Start Game</Link>
-                </p>
+                </p> */}
+                <button
+                  onClick={handleStartClick}
+                  className="font-bold text-[30px] font-sans mb-[5vw] menuBtn"
+                >Start Game</button>
                 <p className="font-bold text-[30px] font-sans menuBtn ">Shop</p>
               </div>
             </div>
@@ -283,9 +317,13 @@ const LandingPage: React.FC = () => {
                     ? shortenAddress(walletAddress!)
                     : "Connect Wallet"}
                 </button>
-                <p className="font-bold text-[40px] font-sans mb-[60px]  menuBtn">
+                {/* <p className="font-bold text-[40px] font-sans mb-[60px]  menuBtn">
                   <Link to="/game">Start Game</Link>
-                </p>
+                </p> */}
+                <button
+                  onClick={handleStartClick}
+                  className="font-bold text-[30px] font-sans mb-[5vw] menuBtn"
+                >Start Game</button>
                 <p className="font-bold text-[40px] font-sans menuBtn">Shop</p>
               </div>
             </div>
