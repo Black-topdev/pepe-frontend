@@ -147,7 +147,7 @@ const LandingPage: React.FC = () => {
     }
     
   };
-  const [sumValue, setData] = useState([]);
+  const [sumValue, setData] = useState(0);
   const [sortData, setSortData] = useState<{ id: string; totalValue: number; }[]>([]);
 
 
