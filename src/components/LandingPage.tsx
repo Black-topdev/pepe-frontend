@@ -274,7 +274,7 @@ const LandingPage: React.FC = () => {
               <div className="absolute top-0 left-0 w-full flex flex-col grow pt-[10vw]">
                 <button
                   onClick={handleClick}
-                  className="font-bold text-[30px] font-sans mb-[10vw] menuBtn"
+                  className="font-bold text-[30px] font-sans mb-[9vw] menuBtn"
                 >
                   {isConnected
                     ? shortenAddress(walletAddress!)
@@ -285,7 +285,7 @@ const LandingPage: React.FC = () => {
                 </p> */}
                 <button
                   onClick={handleStartClick}
-                  className="font-bold text-[30px] font-sans mb-[5vw] menuBtn"
+                  className="font-bold text-[30px] font-sans mb-[9vw] menuBtn"
                 >Start Game</button>
                 <p className="font-bold text-[30px] font-sans menuBtn ">Shop</p>
               </div>
@@ -322,7 +322,7 @@ const LandingPage: React.FC = () => {
                 </p> */}
                 <button
                   onClick={handleStartClick}
-                  className="font-bold text-[40px] font-sans mb-[5vw] menuBtn"
+                  className="font-bold text-[40px] font-sans mb-[4.5vw] menuBtn"
                 >Start Game</button>
                 <p className="font-bold text-[40px] font-sans menuBtn">Shop</p>
               </div>
