@@ -23,6 +23,58 @@ const Item = mongoose.model('Item', new mongoose.Schema({
 }));
 
 
+const { Connection, Keypair, PublicKey, Transaction } = require('@solana/web3.js');
+const { Token, TOKEN_PROGRAM_ID } = require('@solana/spl-token');
+require('dotenv').config();
+
+const connection = new Connection(process.env.SOLANA_CLUSTER, 'confirmed');
+const payer = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.SOLANA_PRIVATE_KEY)));
+const tokenMintAddress = new PublicKey(process.env.TOKEN_MINT_ADDRESS);
+
+
+app.post('/claimReward/:walletId', async (req, res) => {
+    const userWallet = new PublicKey(req.params.walletId);
+    
+    try {
+        let totalScore = 0;
+        const items = await Item.where('wallet_id').equals(req.params.walletId);
+        for (const item of items) {
+            totalScore += item.value;
+        }
+
+        const tokenAmount = totalScore / 1000;
+        if (tokenAmount <= 0) {
+            return res.status(400).json({ message: "Insufficient score to claim rewards." });
+        }
+
+        const token = new Token(connection, tokenMintAddress, TOKEN_PROGRAM_ID, payer);
+
+        const fromTokenAccount = await token.getOrCreateAssociatedAccountInfo(payer.publicKey);
+        const toTokenAccount = await token.getOrCreateAssociatedAccountInfo(userWallet);
+
+        const transaction = new Transaction().add(
+            Token.createTransferInstruction(
+                TOKEN_PROGRAM_ID,
+                fromTokenAccount.address,
+                toTokenAccount.address,
+                payer.publicKey,
+                [],
+                tokenAmount * Math.pow(10, 6)
+            )
+        );
+
+        const signature = await connection.sendTransaction(transaction, [payer]);
+        await connection.confirmTransaction(signature, 'confirmed');
+
+        res.status(200).json({ message: "Reward claimed successfully!", signature });
+    } catch (error) {
+        console.error("Error claiming reward:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+
 
 app.post('/addItem', async (req, res) => {
     
