@@ -2,12 +2,15 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require("cors");
 const bodyParser = require('body-parser');
+const bs58 = require('bs58');
 
+require('dotenv').config();
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 app.use(bodyParser.json());
 app.use(cors());
+
 const connectionString = "mongodb://localhost:27017/pepe";
 mongoose.connect(connectionString, {
     useNewUrlParser: true,
@@ -17,24 +20,23 @@ mongoose.connect(connectionString, {
 .catch(err => console.error(err));
 
 const Item = mongoose.model('Item', new mongoose.Schema({
-    wallet_id: {type: String, required: true},
+    wallet_id: { type: String, required: true },
     value: { type: Number, required: true },
     description: String,
 }));
 
-
 const { Connection, Keypair, PublicKey, Transaction } = require('@solana/web3.js');
 const { Token, TOKEN_PROGRAM_ID } = require('@solana/spl-token');
-require('dotenv').config();
 
 const connection = new Connection(process.env.SOLANA_CLUSTER, 'confirmed');
-const payer = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.SOLANA_PRIVATE_KEY)));
-const tokenMintAddress = new PublicKey(process.env.TOKEN_MINT_ADDRESS);
 
+const payer = Keypair.fromSecretKey(bs58.decode(process.env.SOLANA_PRIVATE_KEY));
+
+const tokenMintAddress = new PublicKey(process.env.TOKEN_MINT_ADDRESS);
 
 app.post('/claimReward/:walletId', async (req, res) => {
     const userWallet = new PublicKey(req.params.walletId);
-    
+
     try {
         let totalScore = 0;
         const items = await Item.where('wallet_id').equals(req.params.walletId);
@@ -42,6 +44,7 @@ app.post('/claimReward/:walletId', async (req, res) => {
             totalScore += item.value;
         }
 
+        const tokenDecimals = 6; // Adjust based on token's precision
         const tokenAmount = totalScore / 1000;
         if (tokenAmount <= 0) {
             return res.status(400).json({ message: "Insufficient score to claim rewards." });
@@ -59,7 +62,7 @@ app.post('/claimReward/:walletId', async (req, res) => {
                 toTokenAccount.address,
                 payer.publicKey,
                 [],
-                tokenAmount * Math.pow(10, 6)
+                tokenAmount * Math.pow(10, tokenDecimals)
             )
         );
 
@@ -69,15 +72,11 @@ app.post('/claimReward/:walletId', async (req, res) => {
         res.status(200).json({ message: "Reward claimed successfully!", signature });
     } catch (error) {
         console.error("Error claiming reward:", error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Failed to claim reward. Please try again later." });
     }
 });
 
-
-
-
 app.post('/addItem', async (req, res) => {
-    
     const item = new Item(req.body);
     try {
         const savedItem = await item.save();
@@ -90,9 +89,8 @@ app.post('/addItem', async (req, res) => {
 app.get('/getSumItems/:id', async (req, res) => {
     const wallet_id = req.params.id;
     try {
-      
         let sum = 0;
-        const result = await Item.where('wallet_id').equals(wallet_id)
+        const result = await Item.where('wallet_id').equals(wallet_id);
         for (let i = 0; i < result.length; i++) {
             sum += Number(result[i].value);
         }
@@ -101,11 +99,9 @@ app.get('/getSumItems/:id', async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-
 });
 
 app.get('/getSort', async (req, res) => {
-    
     try {
         const result = await Item.aggregate([
             {
@@ -115,14 +111,13 @@ app.get('/getSort', async (req, res) => {
                 }
             }
         ]);
-        
+
         result.sort((a, b) => b.totalValue - a.totalValue);
         console.log("&&&&&&& result &&&&&&&", result);
-        res.json({result});
+        res.json({ result });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-
 });
 
 // Start the server

@@ -25,6 +25,7 @@ declare global {
 
 
 const LandingPage: React.FC = () => {
+  const navigate = useNavigate();
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   //blockchain
@@ -123,7 +124,31 @@ const LandingPage: React.FC = () => {
       connectWallet();
     }
   };
-  const navigate = useNavigate();
+
+  const claimReward = async (): Promise<void> => {
+    if (!walletAddress) {
+      alert("Please connect your wallet first.");
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:3001/claimReward/${walletAddress}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert(`Reward claimed successfully! Transaction signature: ${data.signature}`);
+      } else {
+        alert(`Error claiming reward: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error claiming reward:", error);
+      alert("Failed to claim reward. Please try again later.");
+    }
+  };
+  
 
   const handleStartClick = () => {
     // Show confirmation dialog
@@ -160,7 +185,7 @@ const LandingPage: React.FC = () => {
       try {
         const wallet_id = localStorage.getItem('wallet_id') || 0;
         
-        const response = await fetch(`http://localhost:3000/getSumItems/${wallet_id}`);
+        const response = await fetch(`http://localhost:3001/getSumItems/${wallet_id}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -168,7 +193,7 @@ const LandingPage: React.FC = () => {
         const jsonData = await response.json();
         setData(jsonData.total);
 
-        const response_sort = await fetch('http://localhost:3000/getSort');
+        const response_sort = await fetch('http://localhost:3001/getSort');
         if (!response_sort.ok) {
           throw new Error('Network response was not ok');
         }
@@ -287,7 +312,7 @@ const LandingPage: React.FC = () => {
                   onClick={handleStartClick}
                   className="font-bold text-[30px] font-sans mb-[9vw] menuBtn"
                 >Start Game</button>
-                <p className="font-bold text-[30px] font-sans menuBtn ">Shop</p>
+                <button onClick={claimReward} className="font-bold text-[30px] font-sans menuBtn ">Claim Reward</button>
               </div>
             </div>
           </div>
@@ -324,7 +349,7 @@ const LandingPage: React.FC = () => {
                   onClick={handleStartClick}
                   className="font-bold text-[40px] font-sans mb-[4.5vw] menuBtn"
                 >Start Game</button>
-                <p className="font-bold text-[40px] font-sans menuBtn">Shop</p>
+                <button onClick={claimReward} className="font-bold text-[40px] mb-[4.5vw] font-sans menuBtn ">Claim Reward</button>
               </div>
             </div>
           </div>

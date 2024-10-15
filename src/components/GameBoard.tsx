@@ -126,7 +126,7 @@ const addDistanceValue = async (highScore: number) => {
   const wallet_id = localStorage.getItem('wallet_id') || "";
   const item = {wallet_id: wallet_id, value: highScore, description: '' };
   try {
-    const response = await fetch('http://localhost:3000/addItem', {
+    const response = await fetch('http://localhost:3001/addItem', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
