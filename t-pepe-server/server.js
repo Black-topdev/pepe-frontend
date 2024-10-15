@@ -44,7 +44,7 @@ app.post('/claimReward/:walletId', async (req, res) => {
             totalScore += item.value;
         }
 
-        const tokenDecimals = 6; // Adjust based on token's precision
+        const tokenDecimals = 6;
         const tokenAmount = totalScore / 1000;
         if (tokenAmount <= 0) {
             return res.status(400).json({ message: "Insufficient score to claim rewards." });
@@ -120,7 +120,6 @@ app.get('/getSort', async (req, res) => {
     }
 });
 
-// Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

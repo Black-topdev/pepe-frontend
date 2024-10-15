@@ -3,7 +3,6 @@ import { useNavigate  } from 'react-router-dom';
 import svg from "../assets/svg";
 import Img from "../assets/pepeImages";
 import tabList from "../assets/buttonList.png";
-import { Link } from "react-router-dom";
 import "../animation.scss";
 
 // hooks to solana
